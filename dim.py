@@ -23,6 +23,12 @@ class DimensionalityReduction:
         self.X = X[:, :l]
         self.scaler = StandardScaler()
         self.y = X[:, l:]
+
+
+    def baseline(self):
+
+        return self.X, self.y
+
     
 
     def compute_PCA(self, n_components):
@@ -167,8 +173,8 @@ class DimensionalityReduction:
         X_reduced = tsne.fit_transform(X_scaled)
         
         # Calculate pairwise distances in original and reduced space
-        original_distances = _calculate_pairwise_distances(X_scaled)
-        reduced_distances = _calculate_pairwise_distances(X_reduced)
+        original_distances = self._calculate_pairwise_distances(X_scaled)
+        reduced_distances = self._calculate_pairwise_distances(X_reduced)
         
         # Calculate correlation between distance matrices
         distance_correlation = np.corrcoef(original_distances.flatten(), 
@@ -181,9 +187,9 @@ class DimensionalityReduction:
 
         return X_reduced, self.y
 
-    def _calculate_pairwise_distances(self):
+    def _calculate_pairwise_distances(self, X):
         """Calculate pairwise Euclidean distances between points"""
-        return np.sqrt(np.sum((self.X[:, np.newaxis, :] - self.X[np.newaxis, :, :]) ** 2, axis=2))
+        return np.sqrt(np.sum((X[:, np.newaxis, :] - X[np.newaxis, :, :]) ** 2, axis=2))
 
 
 
@@ -217,22 +223,17 @@ class Performance:
 def dim_exp():
 
 
-    # dimRed = DimensionalityReduction()
-    # X_transformed, y = dimRed.evaluate_autoencoder(3)
+    dimRed = DimensionalityReduction()
+    X_transformed, y = dimRed.baseline()
 
-    # perf = Performance(X_transformed, y)
+    perf = Performance(X_transformed, y)
 
-    # print("AutoEncoder : ", perf.train_and_evaluate())
+    print("baseline : ", perf.train_and_evaluate())
 
-    d        = DATA().adds(csv(the.train))
-    l = len(d.rows[0]) - len(d.cols.y)
-    X = np.array(d.rows)
-    X = X[:, :l]
-    y = X[:, l:]
 
-    perf = Performance(X, y)
+    
 
-    print("Baseline : ", perf.train_and_evaluate())
+
 
 
 
