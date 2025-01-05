@@ -16,19 +16,9 @@ from sklearn.metrics import r2_score
 
 class DimensionalityReduction:
 
-    def __init__(self, train = 'data/optimize/misc/auto93.csv'):
-        d        = DATA().adds(csv(train))
-        l = len(d.rows[0]) - len(d.cols.y)
-        X = np.array(d.rows)
-        self.X = X[:, :l]
+    def __init__(self, X):
         self.scaler = StandardScaler()
-        self.y = X[:, l:]
-
-
-    def baseline(self):
-
-        return self.X, self.y
-
+        self.X = X
     
 
     def compute_PCA(self, n_components):
@@ -67,7 +57,7 @@ class DimensionalityReduction:
             #     'components': pca.components_
             # }
 
-            return X_reduced, self.y
+            return X_reduced
 
     def _create_autoencoder(self, input_dim, encoding_dim):
         """
@@ -148,7 +138,7 @@ class DimensionalityReduction:
         #     'autoencoder': autoencoder
         # }
 
-        return X_encoded, self.y
+        return X_encoded
 
     def compute_tsne(self, n_components=2, perplexity=30, random_state=42):
         """
@@ -185,7 +175,7 @@ class DimensionalityReduction:
         #     'distance_correlation': distance_correlation
         # }
 
-        return X_reduced, self.y
+        return X_reduced
 
     def _calculate_pairwise_distances(self, X):
         """Calculate pairwise Euclidean distances between points"""
@@ -221,8 +211,9 @@ class Prediction:
         return sum(scores) / len(scores)
 
 class Optimization:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
 
         self.scores = {
             'explore' : lambda B,R : B + R / abs(B - R) + 1e-7,
@@ -231,22 +222,39 @@ class Optimization:
 
     def evaluate(self, score = 'exploit'):
 
+        self.X = np.vstack((["col" + str(i) for i in range(self.X.shape[-1])], self.X))
+        cur_d = np.hstack((self.X, self.y))
+        print(cur_d)
+ 
+
         activation = self.scores[score]
 
-        d = np.vstack((["col" + str(i) for i in range(self.data.shape[-1])], self.data))
+    
 
-        
+
         
 
 
 
 def dim_exp():
+    
+    d        = DATA().adds(csv(the.train))
+    l = len(d.rows[0]) - len(d.cols.y)
+    X = np.array(d.rows)
+    X_new = X[:, :l]
+    y = X[:, l:]
 
 
-    dimRed = DimensionalityReduction()
-    X_transformed, y = dimRed.evaluate_autoencoder(3)
+    y_cols = [col.txt for col in d.cols.y]
 
-    perf = Optimization(X_transformed)
+
+    y = np.vstack((y_cols, y))
+
+
+    dimRed = DimensionalityReduction(X_new)
+    X_transformed = dimRed.evaluate_autoencoder(3)
+
+    perf = Optimization(X_transformed, y)
 
     perf.evaluate()
 
