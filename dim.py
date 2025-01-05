@@ -193,7 +193,7 @@ class DimensionalityReduction:
 
 
 
-class Performance:
+class Prediction:
     def __init__(self, X, y):
         self.X = X
         self.y = y
@@ -208,7 +208,7 @@ class Performance:
         else:
             self.model = regressor
 
-    def train_and_evaluate(self):
+    def evaluate(self):
 
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.2, shuffle = True)
 
@@ -220,18 +220,38 @@ class Performance:
 
         return sum(scores) / len(scores)
 
+class Optimization:
+    def __init__(self, data):
+        self.data = data
+
+        self.scores = {
+            'explore' : lambda B,R : B + R / abs(B - R) + 1e-7,
+            'exploit' : lambda B,R : B - R
+        }
+
+    def evaluate(self, score = 'exploit'):
+
+        activation = self.scores[score]
+
+        d = np.vstack((["col" + str(i) for i in range(self.data.shape[-1])], self.data))
+
+        
+        
+
+
+
 def dim_exp():
 
 
     dimRed = DimensionalityReduction()
-    X_transformed, y = dimRed.baseline()
+    X_transformed, y = dimRed.evaluate_autoencoder(3)
 
-    perf = Performance(X_transformed, y)
+    perf = Optimization(X_transformed)
 
-    print("baseline : ", perf.train_and_evaluate())
+    perf.evaluate()
 
 
-    
+
 
 
     
