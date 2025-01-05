@@ -217,7 +217,9 @@ def add(self:DATA,row:row) -> DATA:
     if '?' not in row:
       self.rows += [self.cols.add(row)]
 
-  else: self.cols = COLS(names=row) # for row q
+  else: 
+    self.cols = COLS(names=row)
+    
   return self
 
 @of("add all the `x` and `y` cols.")

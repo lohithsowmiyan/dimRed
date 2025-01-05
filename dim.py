@@ -212,7 +212,7 @@ class Prediction:
 
 class Optimization:
     def __init__(self, X, y):
-        self.X = X
+        self.X = X.tolist()
         self.y = y
 
         self.scores = {
@@ -220,18 +220,23 @@ class Optimization:
             'exploit' : lambda B,R : B - R
         }
 
-    def evaluate(self, score = 'exploit'):
+    def evaluate(self, score = 'exploit', labels = 30):
 
-        self.X = np.vstack((["col" + str(i) for i in range(self.X.shape[-1])], self.X))
-        cur_d = np.hstack((self.X, self.y))
-        print(cur_d)
- 
+        self.X = [["Col" + str(i) for i in range(len(self.X[0]))]] + self.X
+
+        hstack_2d_lists = lambda lists: [sum(row, []) for row in zip(*lists)]
+        cur_d = hstack_2d_lists([self.X, self.y])
+        
+
+        d = DATA().adds(cur_d)
 
         activation = self.scores[score]
 
-    
 
-
+        tmp=d.shuffle().activeLearning(score=activation)
+        rnd      = lambda z: ((int(z/dull) * dull) if the.Dull else z)
+        result = rnd(d.chebyshev(tmp[0]))
+        return [result]
         
 
 
@@ -245,18 +250,69 @@ def dim_exp():
     y = X[:, l:]
 
 
-    y_cols = [col.txt for col in d.cols.y]
+    y_cols = [[col.txt for col in d.cols.y]] 
 
 
-    y = np.vstack((y_cols, y))
+    y = y_cols +  y.tolist()
+    
 
 
-    dimRed = DimensionalityReduction(X_new)
-    X_transformed = dimRed.evaluate_autoencoder(3)
 
-    perf = Optimization(X_transformed, y)
 
-    perf.evaluate()
+    repeats = 20
+
+    dims = [2,3,4,5]
+
+    somes = []
+    result = []
+
+    for _ in range(repeats):
+            
+        perf = Optimization(X_new, y)
+        result += perf.evaluate()
+
+    pre=f"original"
+    tag = pre
+    somes +=   [stats.SOME(result,    tag)]
+
+
+
+    for dim in dims:
+        dimRed = DimensionalityReduction(X_new)
+        X_transformed = dimRed.compute_PCA(dim)
+        result = []
+        for _ in range(repeats):
+            
+            perf = Optimization(X_transformed, y)
+            result += perf.evaluate()
+
+        pre=f"PCA/{dim}"
+        tag = pre
+        somes +=   [stats.SOME(result,    tag)]
+
+    for dim in dims:
+        dimRed = DimensionalityReduction(X_new)
+        X_transformed = dimRed.evaluate_autoencoder(dim)
+        result = []
+        for _ in range(repeats):
+            
+            perf = Optimization(X_transformed, y)
+            result += perf.evaluate()
+
+        pre=f"autoencoder/{dim}"
+        tag = pre
+        somes +=   [stats.SOME(result,    tag)]
+
+
+
+    stats.report(somes, 0.01)
+
+
+
+
+    
+
+    print(perf.evaluate())
 
 
 
