@@ -11,7 +11,7 @@ from sklearn.manifold import TSNE
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.metrics import r2_score
-
+from config import parse_arguments
 
 
 class DimensionalityReduction:
@@ -111,7 +111,7 @@ class DimensionalityReduction:
                     epochs=epochs, 
                     batch_size=batch_size, 
                     validation_data=(X_test, X_test),
-                    verbose=1)
+                    verbose=0)
         
         # Get encoded (reduced) representations
         X_encoded = encoder.predict(X_scaled)
@@ -240,10 +240,18 @@ class Optimization:
         
 
 
+metrics = {
+    'predict' : Prediction,
+    'optimize' : Optimization
+}
 
 def dim_exp():
+
+    args = parse_arguments()
+
+    metric = metrics[args.metric]
     
-    d        = DATA().adds(csv(the.train))
+    d        = DATA().adds(csv(args.dataset))
     l = len(d.rows[0]) - len(d.cols.y)
     X = np.array(d.rows)
     X_new = X[:, :l]
@@ -251,16 +259,9 @@ def dim_exp():
 
 
     y_cols = [[col.txt for col in d.cols.y]] 
-
-
     y = y_cols +  y.tolist()
-    
-
-
-
 
     repeats = 20
-
     dims = [2,3,4,5]
 
     somes = []
@@ -268,14 +269,12 @@ def dim_exp():
 
     for _ in range(repeats):
             
-        perf = Optimization(X_new, y)
+        perf = metric(X_new, y)
         result += perf.evaluate()
 
     pre=f"original"
     tag = pre
     somes +=   [stats.SOME(result,    tag)]
-
-
 
     for dim in dims:
         dimRed = DimensionalityReduction(X_new)
@@ -283,7 +282,7 @@ def dim_exp():
         result = []
         for _ in range(repeats):
             
-            perf = Optimization(X_transformed, y)
+            perf = metric(X_transformed, y)
             result += perf.evaluate()
 
         pre=f"PCA/{dim}"
@@ -296,41 +295,13 @@ def dim_exp():
         result = []
         for _ in range(repeats):
             
-            perf = Optimization(X_transformed, y)
+            perf = metric(X_transformed, y)
             result += perf.evaluate()
 
         pre=f"autoencoder/{dim}"
         tag = pre
         somes +=   [stats.SOME(result,    tag)]
 
-
-
     stats.report(somes, 0.01)
-
-
-
-
-    
-
-    print(perf.evaluate())
-
-
-
-
-
-    
-
-
-
-
-
-
-    
-
-    
-
-
-
-
 
 dim_exp()

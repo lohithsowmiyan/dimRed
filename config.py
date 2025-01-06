@@ -7,6 +7,7 @@ def parse_arguments():
     parser.add_argument('-e', '--epochs', type = int, default = 100)
     parser.add_argument('-l', '--loss', type = str, default = 'mse')
     parser.add_argument('-o', '--optimizer', type = str, default = 'adam')
+    parser.add_argument('-m', '--metric', type = str, default = 'optimize')
 
     args = parser.parse_args()
 
