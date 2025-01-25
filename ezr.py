@@ -224,8 +224,16 @@ def add(self:DATA,row:row) -> DATA:
 
 @of("add all the `x` and `y` cols.")
 def add(self:COLS, row:row) -> row:
+  
   [col.add(row[col.at]) for cols in [self.x, self.y] for col in cols]
-  return row
+  new_row = []
+  for c, r in zip(self.all , row):
+    #print(c)
+    if type(c) == SYM:
+      new_row.append(id(r))
+    else: new_row.append(r)
+
+  return new_row
 
 @of("If `x` is known, add this COL.")
 def add(self:COL, x:any) -> any:
@@ -235,8 +243,8 @@ def add(self:COL, x:any) -> any:
 
 @of("add symbol counts.")
 def add1(self:SYM, x:any) -> any:
-  self.has[x] = self.has.get(x,0) + 1
-  if self.has[x] > self.most: self.mode, self.most = x, self.has[x]
+  self.has[id(x)] = self.has.get(id(x),0) + 1
+  if self.has[id(x)] > self.most: self.mode, self.most = x, self.has[id(x)]
   return x
 
 @of("add `mu` and `sd` (and `lo` and `hi`). If `x` is a string, coerce to a number.")
