@@ -471,12 +471,12 @@ def half_median(self:DATA, rows:rows, sortp=False) -> tuple[rows,rows,row,row,fl
 
 @of("recursive divide rows using distance to two far points")
 def cluster(self:DATA, rows:rows=None,  sortp=False, stop=None, cut=None, fun=None, lvl=0):
-  stop = stop
+  stop = stop or the.Stop
   rows = rows or self.rows
   cut1, ls, rs, left, right = self.half(rows,sortp=sortp)
   it = CLUSTER(data=self.clone(rows), cut=cut, fun=fun, left=left, right=right, mid=rs[0], lvl=lvl)
-  if lvl < stop : it.lefts  = self.cluster(ls, sortp, stop, cut1, le, lvl+1)
-  if lvl < stop : it.rights = self.cluster(rs, sortp, stop, cut1, gt, lvl+1)
+  if len(ls)>stop and len(ls)<len(rows): it.lefts  = self.cluster(ls, sortp, stop, cut1, le, lvl+1)
+  if len(rs)>stop and len(rs)<len(rows): it.rights = self.cluster(rs, sortp, stop, cut1, gt, lvl+1)
   return it
 
 @of("Recursively bi-cluster `region`, recurse only down the best half.")
