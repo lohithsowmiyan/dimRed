@@ -471,12 +471,12 @@ def half_median(self:DATA, rows:rows, sortp=False) -> tuple[rows,rows,row,row,fl
 
 @of("recursive divide rows using distance to two far points")
 def cluster(self:DATA, rows:rows=None,  sortp=False, stop=None, cut=None, fun=None, lvl=0):
-  stop = stop or the.Stop
+  stop = stop or 3
   rows = rows or self.rows
   cut1, ls, rs, left, right = self.half(rows,sortp=sortp)
   it = CLUSTER(data=self.clone(rows), cut=cut, fun=fun, left=left, right=right, mid=rs[0], lvl=lvl)
-  if len(ls)>stop and len(ls)<len(rows): it.lefts  = self.cluster(ls, sortp, stop, cut1, le, lvl+1)
-  if len(rs)>stop and len(rs)<len(rows): it.rights = self.cluster(rs, sortp, stop, cut1, gt, lvl+1)
+  if lvl < stop : it.lefts  = self.cluster(ls, sortp, stop, cut1, le, lvl+1)
+  if lvl < stop : it.rights = self.cluster(rs, sortp, stop, cut1, gt, lvl+1)
   return it
 
 @of("Recursively bi-cluster `region`, recurse only down the best half.")
@@ -817,6 +817,17 @@ class egs:
     cluster = d.cluster(d.rows,sortp=True)
     for node,leafp in cluster.nodes(): 
       print(r2(d.chebyshev(node.left)) if node.left else "", node,sep="\t")
+
+  def cluster_widths():
+    d = DATA().adds(csv(the.train))
+    cluster = d.cluster(d.rows, sortp = True)
+    count = 0
+    for node, leafp in cluster.nodes():
+      if leafp:
+        count += 1
+        #print("number of points :", len(node.rows))
+        print("width of the cluster: ", d.dist(node.left, node.right))
+    print(count)
 
   def diversities(d=None):
     d = d or  DATA().adds(csv(the.train))
